@@ -10,13 +10,33 @@ from django.conf import settings
 from django.utils import timezone
 from datetime import timedelta
 import logging
+from django.db import connection
 class AuthorViewSet(viewsets.ModelViewSet):
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
 
 class BookViewSet(viewsets.ModelViewSet):
-    queryset = Book.objects.all()
     serializer_class = BookSerializer
+    
+    def get_queryset(self):
+        """
+        Optimized queryset that uses select_related to minimize database queries.
+        This prevents N+1 query problem when accessing related Author data.
+        """
+        return Book.objects.select_related('author')
+    
+    def list(self, request, *args, **kwargs):
+        """
+        Override list method to verify query optimization using Django's debug tools.
+        """
+        initial_query_count = len(connection.queries)
+        response = super().list(request, *args, **kwargs)
+        queries_executed = len(connection.queries) - initial_query_count
+        
+        logger = logging.getLogger(__name__)
+        logger.info(f"BookViewSet executed {queries_executed} database queries for retrieving books with authors")
+        
+        return response
 
     @action(detail=True, methods=['post'])
     def loan(self, request, pk=None):
