@@ -21,7 +21,6 @@ class BookViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         """
         Optimized queryset that uses select_related to minimize database queries.
-        This prevents N+1 query problem when accessing related Author data.
         """
         return Book.objects.select_related('author')
     
