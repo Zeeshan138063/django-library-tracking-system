@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     # Third-party apps
     'rest_framework',
     'corsheaders',
+    'django_celery_beat',  # For scheduled tasks
     # System commands
     'library_system',
     # Local apps
@@ -117,3 +118,12 @@ CELERY_RESULT_SERIALIZER = 'json'
 # Email Configuration
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # For development
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'admin@library.com')
+
+# Celery Beat Schedule - Tasks that run on schedule
+CELERY_BEAT_SCHEDULE = {
+    'check-overdue-loans-every-daily': {
+        'task': 'library.tasks.check_overdue_loans',
+        'schedule': 86400,  # Run every day minutes (86400 seconds)
+    },
+}
+CELERY_TIMEZONE = 'UTC'
