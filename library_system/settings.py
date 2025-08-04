@@ -24,6 +24,8 @@ INSTALLED_APPS = [
     # Third-party apps
     'rest_framework',
     'corsheaders',
+    # System commands
+    'library_system',
     # Local apps
     'library', 
 ]
