@@ -23,20 +23,6 @@ class BookViewSet(viewsets.ModelViewSet):
         Optimized queryset that uses select_related to minimize database queries.
         """
         return Book.objects.select_related('author')
-    
-    def list(self, request, *args, **kwargs):
-        """
-        Override list method to verify query optimization using Django's debug tools.
-        """
-        initial_query_count = len(connection.queries)
-        response = super().list(request, *args, **kwargs)
-        queries_executed = len(connection.queries) - initial_query_count
-        
-        logger = logging.getLogger(__name__)
-        logger.info(f"BookViewSet executed {queries_executed} database queries for retrieving books with authors")
-        
-        return response
-
     @action(detail=True, methods=['post'])
     def loan(self, request, pk=None):
         book = self.get_object()
